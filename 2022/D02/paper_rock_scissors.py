@@ -5,7 +5,8 @@ input_file = sys.argv[1]
 # plays
 # opponent
 # A for Rock, B for Paper, and C for Scissors
-# response
+# response (revealed in part 2)
+# X means you need to lose, Y means you need to end the round in a draw, and Z means you need to win
 
 # Rock > Scissors > Paper > Rock
 
@@ -19,9 +20,24 @@ input_file = sys.argv[1]
 # map strat codes to 'universal' shape codes: R(ock), P(aper), S(cissors)
 shape_decode = {'A': 'R', 'B': 'P', 'C': 'S'}
 
-naive_resp_decode_map = {'X': 'R', 'Y': 'P', 'Z': 'S'}
-def resp_decode(rc):
-    return naive_resp_decode_map[rc]
+naive_resp_decode_map = {'X': 'R', 'Y': 'P', 'Z': 'S'} # used only for part 1
+
+winning_move = {'R': 'P', 'S': 'R', 'P': 'S'}
+# invert above dict
+losing_move = {v: k for (k, v) in winning_move.items()}
+
+def resp_decode(p, rc):
+    """in part 2 decoding depends on opponent's play p"""
+
+    if rc == 'Y':
+        # need a draw, just return same shape
+        return p
+
+    if rc == 'Z':
+        return winning_move[p]
+
+    #  assuming rc == 'X'
+    return losing_move[p]
 
 # shape propertied and scoring
 shape_score = {'R': 1, 'P': 2, 'S': 3}
@@ -58,8 +74,9 @@ total_score = 0
 for ll in lines:
     pc, rc = ll.strip().split()
     p = shape_decode[pc]
-    r = resp_decode(rc)
+    r = resp_decode(p, rc)
 
+    # print(f"DEBUG: INPUT: {pc} {rc}")
     sc = score(p, r)
 
     total_score += sc
