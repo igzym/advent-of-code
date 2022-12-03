@@ -18,7 +18,10 @@ input_file = sys.argv[1]
 
 # map strat codes to 'universal' shape codes: R(ock), P(aper), S(cissors)
 shape_decode = {'A': 'R', 'B': 'P', 'C': 'S'}
-resp_decode = {'X': 'R', 'Y': 'P', 'Z': 'S'}
+
+naive_resp_decode_map = {'X': 'R', 'Y': 'P', 'Z': 'S'}
+def resp_decode(rc):
+    return naive_resp_decode_map[rc]
 
 # shape propertied and scoring
 shape_score = {'R': 1, 'P': 2, 'S': 3}
@@ -55,7 +58,7 @@ total_score = 0
 for ll in lines:
     pc, rc = ll.strip().split()
     p = shape_decode[pc]
-    r = resp_decode[rc]
+    r = resp_decode(rc)
 
     sc = score(p, r)
 
