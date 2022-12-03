@@ -1,0 +1,9 @@
+*.secret
+.ipynb_checkpoints/
+*.ipynb
+.vscode/
+.coverage
+htmlcov/
+__pycache__/
+.swp
+.*.swp
