@@ -38,11 +38,17 @@ def get_top_crate_on_stack(t_stacks, stack_row):
     return t_stacks[stack_row-1][0]
 
 
-def move_crates(t_stacks, quantity, from_stack, to_stack):
+def move_crates(t_stacks, quantity, from_stack, to_stack, model9001=False):
     moved = t_stacks[from_stack-1][:quantity]
     t_stacks[from_stack-1] = t_stacks[from_stack-1][quantity:]
-    for c in moved:
-        t_stacks[to_stack-1].insert(0, c)
+    if not model9001:
+        # model 9000 - crates reverse order after being moved
+        # this is in part 1 of puzzle
+        for c in moved:
+            t_stacks[to_stack-1].insert(0, c)
+    else:
+        # keep the same order
+        t_stacks[to_stack-1] = moved + t_stacks[to_stack-1]
 
 def print_stacks(t_stacks):
     for stack in t_stacks:
@@ -88,7 +94,7 @@ for move in moves:
 for move in moves:
     quantity, from_stack, to_stack = move[0], move[1], move[2]
     #print('move', quantity, from_stack, to_stack)
-    move_crates(t_stacks, quantity, from_stack, to_stack)
+    move_crates(t_stacks, quantity, from_stack, to_stack, model9001=True)
     #print_stacks(t_stacks)
 
 print(f"RESULT top crates: {top_crates(t_stacks)}")
