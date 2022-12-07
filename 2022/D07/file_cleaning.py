@@ -86,4 +86,27 @@ for ll in lines:
 
 calc_sizes(root_node) 
 
-print(f"RESULT: tot_size_to_threshold {tot_size_to_threshold}")
+
+capacity = 70000000
+needed_size = 30000000
+min_size_to_free = needed_size - (capacity - root_node.size)
+
+print(f"root node size: {root_node.size}")
+print(f"current free size: {capacity - root_node.size}")
+print(f"min_size_to_free: {min_size_to_free}")
+
+
+smallest_needed_to_free = root_node.size
+def calc_smallest_needed_to_free(node):
+    global smallest_needed_to_free
+    if node.size >= min_size_to_free:
+        if node.size < smallest_needed_to_free:
+            smallest_needed_to_free = node.size
+
+    for c in node.children:
+        calc_smallest_needed_to_free(c)
+
+calc_smallest_needed_to_free(root_node)
+
+print(f"RESULT: tot_size_to_threshold {tot_size_to_threshold} (part 1)")
+print(f"RESULT: smallest_needed_to_free {smallest_needed_to_free} (part 2)")
