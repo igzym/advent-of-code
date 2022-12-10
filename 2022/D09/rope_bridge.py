@@ -3,13 +3,17 @@ import sys
 import re
 
 input_file = sys.argv[1]
+rope_length = 2
+if len(sys.argv) > 2:
+    rope_length = int(sys.argv[2])
+print("rope length", rope_length)
 
 with open(input_file) as f:
     lines = f.readlines()
 
 moves = []
 
-knot_pos = [ [0, 0] for _ in range(10) ]
+knot_pos = [ [0, 0] for _ in range(rope_length) ]
 
 unique_tail_pos = set()
 
