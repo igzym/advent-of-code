@@ -2,13 +2,34 @@ import sys
 
 import re
 
-input_file = sys.argv[1]
+sys.argv.pop(0)  # get rid of first argument - script name
+input_file = sys.argv.pop(0)
+
+n_rounds = 10000  # part 2 value, was 20 in round 1
+if sys.argv:
+    n_rounds = int(sys.argv.pop(0))  # optional number of arguments as command line parameter
+print("n_rounds", n_rounds)
+
+# are we in part 1 (divide worry level by 3 to keep it manageable) or part 2 ?
+part_2 = True
+if sys.argv:
+    part_str = sys.argv.pop(0)
+    assert part_str in ["part_1", "part_2"]
+    part_2 = part_str == "part_2"
+print("part_2", part_2)
+
 
 with open(input_file) as f:
     lines = f.readlines()
 
 monkey = dict()
 cur_mid = None
+
+# calculate the common divisor as a product of all individual divisors of
+# different monkeys
+# it will be used to reduce the worry level to keep it growing exponentially
+# without changing its various divisibility tests
+common_divisor = 1
 
 for ll in lines:
     ll = ll.strip()  # get rid of trailing newline AND any leading whitespace
@@ -38,6 +59,7 @@ for ll in lines:
     if m:
         test_div = int(m.group(1))
         monkey[cur_mid]['test_div'] = test_div
+        common_divisor *= test_div
         continue
 
     m = re.match(r'If true: throw to monkey (.*)', ll)
@@ -60,14 +82,21 @@ def print_monkey(m):
     print(f"Monkey {m['id']}: {items}   (inspected: {m['n_inspected']})")
 
 
-for round in range(20):
+for round in range(n_rounds):
     for mid in range(N):
         m = monkey[mid]
         for item in m['items']:
             m['n_inspected'] += 1
             old = item
             new = eval(m['op'])
-            new = new // 3
+            if not part_2:
+                # part 1 - keep it manageable by dividing it
+                # by constant value 3
+                new = new // 3
+            else:
+                # part 2 - need to reduce the value to keep it manageable
+                # differently
+                new = new % common_divisor
             if new % m['test_div'] == 0:
                 to_monkey = monkey[m['to_monkey_true']]
             else:
@@ -102,5 +131,9 @@ m2 = by_act[1]
 monkey_business = m1[1] * m2[1]
 
 print(f"RESULT monkey_business {monkey_business} (by {m1} and {m2}")
-print("expected for test input in part 1: 10605")
-print("expected for actual input in part 1: 57838")
+print("-- part 1 --")
+print("expected for test input: 10605")
+print("expected for actual input: 57838")
+print("-- part 2 --")
+print("expected for test input: 2713310158")
+print("expected for actual input: 15050382231")
