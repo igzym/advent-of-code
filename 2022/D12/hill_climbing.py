@@ -132,9 +132,14 @@ def show_graph(nd: Node) -> None:
 # print(len(visited_node))
 # print(len(nodegrid))
 
-# do a breadth-first search starting at S:
 
-root = nodegrid[start_node]
+# reset fields used during BFS to their initial values
+def reset_for_BFS():
+    for r in range(nrow):
+        for c in range(ncol):
+            nd: Node = nodegrid[(r, c)]
+            nd.explored = False
+            nd.parent = None
 
 # adapted from https://en.wikipedia.org/wiki/Breadth-first_search
 def BFS(root: Node):
@@ -153,17 +158,39 @@ def BFS(root: Node):
                 w.parent = v
                 Q.append(w)
                 ctrl_cnt += 1
-                if False: # ctrl_cnt > 20:
-                    return None
 
+# run after BFS, with g being BFS result
+def get_path(g):
+    path = []
+    while g is not None:
+        path.append(g)
+        g = g.parent
+    return path
+
+# part 1 do a breadth-first search starting at S
+root = nodegrid[start_node]
 g = BFS(root)
 print("BFS goal", g)
 
-path = []
-while g is not None:
-    path.append(g)
-    g = g.parent
+path = get_path(g)
 
 # print([str(n) for n in path], len(path))
 
-print(f"RESULT: part 1: shortest path {len(path)-1}")
+print(f"RESULT: part 1: shortest path length from S: {len(path)-1}")
+
+# part 2 - shortest of all paths starting at 'a'
+paths = []
+for r in range(nrow):
+    for c in range(ncol):
+        nd: Node = nodegrid[(r, c)]
+        if nd.height == 0: # ie, 'a'
+            reset_for_BFS()
+            g = BFS(nd)
+            if g is not None:
+                path = get_path(g)
+                # print(f" path: {[str(p) for p in path]}")
+                paths.append(path)
+
+spaths = sorted(paths, key=lambda p: len(p))
+
+print(f"RESULT: part 2: shortest path length from any 'a': {len(spaths[0])-1}")
