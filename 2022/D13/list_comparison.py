@@ -80,3 +80,25 @@ for lpi in range(len(list_pairs)):
 
 print(f"RESULT part 1: tot_lpi {tot_lpi}")
 
+packets = []
+for pp in list_pairs:
+    packets.append(pp[0])
+    packets.append(pp[1])
+divider_packets = [[[2]], [[6]]]
+
+packets += divider_packets
+
+import functools
+
+packets_s = sorted(packets, key=functools.cmp_to_key(list_compare))
+
+pidx = 1
+decode_key = 1
+for p in packets_s:
+    # print(pidx, p)
+    if p in divider_packets:
+        decode_key *= pidx
+    pidx += 1
+
+print(f"RESULT part 2: decode key: {decode_key}")
+
