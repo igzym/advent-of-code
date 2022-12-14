@@ -38,14 +38,16 @@ class Grid:
         print("x range", self.min_x, self.max_x)
         print("y range", self.min_y, self.max_y)
 
+        self.ydim = self.max_y + 1
+        self.xdim = self.max_x - self.min_x + 1
+
         self.grid = []
-        empty_row = [ "." for _ in range(self.max_x - self.min_x + 1)]
+        empty_row = [ "." for _ in range(self.xdim)]
         print(len(empty_row))
-        for y in range(self.max_y + 1):
+        for y in range(self.ydim):
             self.grid.append(list(empty_row))
 
-        self.ydim = len(self.grid)
-        self.xdim = len(self.grid[0])
+
 
         for rp in rock_paths:
             prev_x, prev_y = None, None
