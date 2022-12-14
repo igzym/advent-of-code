@@ -86,28 +86,38 @@ class Grid:
         print()
 
 g = Grid(rock_paths)
-g.display()
+# g.display()
 
 # simulate one unit of sand
 def drop_unit(g: Grid):
     cx, cy = [500, 0]
+    abyss = False
     while True:
-        if g.getElement(cx, cy+1) == '.':
-            cy = cy+1
-            continue
-        if g.getElement(cx-1, cy+1) == '.':
-            cx, cy = cx-1, cy+1
-            continue
-        if g.getElement(cx+1, cy+1) == '.':
-            cx, cy = cx+1, cy+1
-            continue
-        break
-    if g.getElement(cx, cy) is None:
-        return False
-    g.setElement(cx, cy, 'o')
+        blocked = True
+        for dx, dy in (0, 1), (-1, 1), (1, 1):
+            #if g.getElement(cx+dx, cy+dy) is None:
+            #    # falls into void
+            #    sys.exit(0)
+            #    break
+            if g.getElement(cx+dx, cy+dy) is None:
+                abyss = True
+                break
+            if g.getElement(cx+dx, cy+dy) == '.':
+                cx += dx
+                cy += dy
+                blocked = False
+                break
+        if abyss:
+            return False
+        if blocked:
+            g.setElement(cx, cy, 'o')
+            break
     return True
 
-for _ in range(26):
-    drop_unit(g)
+sand_units = 0
+while drop_unit(g):
+    sand_units += 1
 
-g.display()
+# g.display()
+
+print(f"RESULT sand_units {sand_units}")
