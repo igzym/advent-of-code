@@ -23,54 +23,60 @@ for ll in lines:
 
 list_pairs.append(current_pair)  # the last one is not delimited by a blank line
 
-import pprint
-
 # print("list pairs:")
 # for lpi in range(len(list_pairs)):
 #     lp = list_pairs[lpi]
 #     print(f"{lpi+1}: {str(lp[0]):35} : {str(lp[1]):35}")
 
 def list_compare(a, b):
-    # return True if list a is 'smaller' than b
-    if len(a) > 0 and len(b) == 0:
-        return False  # a is non-empty and b is empty, so a is not smaller
-    if len(a) == 0:
-        return True  # a is empty and cannot be bigger than b
-    if len(b) == 0:
-        return False  # b is empty and a is not, a is not smaller
-
-    # both a and b are non-empty
-    assert len(a) > 0
-    assert len(b) > 0
-
-    if type(a[0]) == int and type(b[0]) == int:
-        if a[0] > b[0]:
-            return False
-        return list_compare(a[1:], b[1:])
-
-    if type(a[0]) == int:
-        atoc = [ a[0] ]
-    else:
-        atoc = a[0]
+    """return negative value if a < b, 0 if a == b, positive value if a > b"""
+    # print(f"... compare input a = {a}, b = {b}")
     
-    if type(b[0]) == int:
-        btoc = [ b[0] ]
-    else:
-        btoc = b[0]
-    
-    return list_compare(atoc, btoc)
+    for i in range(min(len(a), len(b))):
 
+        aa = a[i]
+        bb = b[i]
+
+        # print(f"... ... comparing {aa} and {bb}")
+        
+        if type(aa) == int and type(bb) == int:
+            if aa > bb:
+                # print(f"... ... {aa} > {bb}")
+                return 1
+            if aa < bb:
+                # print(f"... ... {aa} < {bb}")
+                return -1
+            # print(f"... ... {aa} = {bb}")
+        else:
+            # both are lists, or mixed type
+            if type(aa) == int:
+                aa = [ aa ]
+            if type(bb) == int:
+                bb = [ bb ]
+            r = list_compare(aa, bb)
+            if r > 0:
+                pass # print(f"... ... {aa} > {bb}")
+            elif r < 0:
+                pass # print(f"... ... {aa} < {bb}")
+            else:
+                pass # print(f"... ... {aa} = {bb}")
+            if r != 0:
+                return r
+    return len(a) - len(b)
 
 tot_lpi = 0  # sum of indexes of pairs in right order: part 1 answer
 for lpi in range(len(list_pairs)):
     lp = list_pairs[lpi]
     a, b = lp[0], lp[1]
-    print(f"pair index {lpi+1}")
-    if list_compare(a, b):
-        print(f"{a} <= {b}")
+    # print(f"============ pair index {lpi+1} {a} vs {b}")
+    r = list_compare(a, b)
+    rs = "right order" if r else "NOT right order"
+    if r <= 0:
+        # print(f"{a} <= {b} right order")
         tot_lpi += (lpi+1)
     else:
-        print(f"{a} > {b}")
+        pass # print(f"{a} > {b} NOT right order")
+    # print(f"   pair index {lpi+1} {rs}")
 
 print(f"RESULT part 1: tot_lpi {tot_lpi}")
 
