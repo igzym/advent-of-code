@@ -7,6 +7,12 @@ import json
 sys.argv.pop(0)  # get rid of first argument - script name
 input_file = sys.argv.pop(0)
 
+part = "part2" # choose behaviour - part 1 or part 2 of the puzzle
+if sys.argv:
+    part = sys.argv.pop(0)
+
+assert part in ["part1", "part2"], f"unexpected part={part}"
+
 with open(input_file) as f:
     lines = f.readlines()
 
@@ -35,6 +41,15 @@ class Grid:
                 self.min_x = min(self.min_x, x)
                 self.max_y = max(self.max_y, y)
                 self.min_y = min(self.min_y, y)
+
+        if part == "part2":
+            # add to more lines below, for the floor at botton
+            self.max_y += 2
+            # add a few more colums to the left an right (but this will be
+            # dynamically adjustable)
+            self.min_x -= 3
+            self.max_x += 3
+
         print("x range", self.min_x, self.max_x)
         print("y range", self.min_y, self.max_y)
 
@@ -47,7 +62,9 @@ class Grid:
         for y in range(self.ydim):
             self.grid.append(list(empty_row))
 
-
+        if part == "part2":
+            # add the floor at bottom
+            rock_paths.append([ [self.min_x, self.max_y], [self.max_x, self.max_y] ])
 
         for rp in rock_paths:
             prev_x, prev_y = None, None
@@ -82,6 +99,18 @@ class Grid:
             return None
         return self.grid[y][xx]
 
+    def extend_left(self):
+        for y in range(self.ydim):
+            self.grid[y].insert(0, "." if y < self.max_y else "#")
+        self.min_x -= 1
+        self.xdim += 1
+
+    def extend_right(self):
+        for y in range(self.ydim):
+            self.grid[y].append("." if y < self.max_y else "#")
+        self.max_x += 1
+        self.xdim += 1
+
     def display(self):
         for r in self.grid:
             print("".join(r))
@@ -96,6 +125,11 @@ def drop_unit(g: Grid):
     abyss = False
     while True:
         blocked = True
+        if part == "part2":
+            if cx == g.min_x:
+                g.extend_left()
+            if cx == g.max_x:
+                g.extend_right()
         for dx, dy in (0, 1), (-1, 1), (1, 1):
             #if g.getElement(cx+dx, cy+dy) is None:
             #    # falls into void
@@ -110,9 +144,14 @@ def drop_unit(g: Grid):
                 blocked = False
                 break
         if abyss:
-            return False
+            return False # stop sending more sand
         if blocked:
             g.setElement(cx, cy, 'o')
+            if part == "part2":
+                if cx == 500 and cy == 0:
+                    # g.display()
+                    print('at source')
+                    return False # stop sending more sand
             break
     return True
 
@@ -120,6 +159,8 @@ sand_units = 0
 while drop_unit(g):
     sand_units += 1
 
+if part == "part2":
+    sand_units += 1  # ???
 # g.display()
 
 print(f"RESULT sand_units {sand_units}")
