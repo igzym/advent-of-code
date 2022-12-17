@@ -29,7 +29,7 @@ class Beacon:
         self.x = x
         self.y = y
 
-    def loc(self) -> tuple(int):
+    def loc(self):
         return (self.x, self.y)
 
 class Sensor:
@@ -44,7 +44,7 @@ class Sensor:
     def dist(self) -> int:
         return abs(self.x - self.beacon.x) + abs(self.y - self.beacon.y)
 
-    def loc(self) -> tuple(int):
+    def loc(self):
         return (self.x, self.y)
 
 sensors = dict()
@@ -66,8 +66,8 @@ for ll in lines:
     sensors[sensor.loc()] = sensor
     beacon_loc.add(beacon.loc())
 
-x_min = y_min = 1e30
-x_max = y_max = -1e30
+x_min = y_min = 10**9
+x_max = y_max = -10**9
 
 for loc, sensor in sensors.items():
     x_min = min(x_min, sensor.x, sensor.beacon.x)
