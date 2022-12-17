@@ -108,20 +108,26 @@ def intersection_line_sensor(y: int, sensor: Sensor):
 
     # vertical distance from sensor to line
     dist_s_l = abs(sensor.y - y)
+
     if d < dist_s_l:
         # line is too far from sensor, no intersection
-        return []
+        remd = None
+        ints = []
+    else:
+        # than go left and right the remaining distance
+        remd = d - dist_s_l  # >= because of above check
+        x_s = sensor.x - remd
+        x_e = sensor.x + remd
+        # clip to grid limits
+        x_s = max(x_min, x_s)
+        x_e = min(x_max, x_e)
 
-    # than go left and right the remaining distance
-    remd = d - dist_s_l  # >= because of above check
-    x_s = sensor.x - remd
-    x_e = sensor.x + remd
-    # clip to grid limits
-    x_s = max(x_min, x_s)
-    x_e = min(x_max, x_e)
+        ints = [x_s, x_e]
 
-    return [x_s, x_e]
+    print(f"sensor loc: {loc},  d: {sensor.dist()}")
+    print(f"    dist_s_l: {dist_s_l}), remd: {remd}: {ints}")
 
+    return ints
 # adapted from D04 - camp cleanup
 
 def merge_intervals_if_possible(a, b):
@@ -161,10 +167,10 @@ y = y_line_to_test
 n_excluded = 0
 inters_set = []  # sortd list of disjoint intervals of interection of the line at y with
                  # the 'exlusion zones' of all the sensors
+print(f"line: {y}")
 for loc, sensor in sensors.items():
     ints = intersection_line_sensor(y, sensor)
     dtl = abs(sensor.y - y)
-    print(f"sensor at loc {loc}, with d {sensor.dist()}, inters. with line at {y} (at dist {dtl}): {ints}")
     if len(ints) > 0:  # if intersection not empty add it
         inters_set = add_to_intersection_set(inters_set, ints)
     print(f".. ints = {ints}, new inters_set = {inters_set}")
