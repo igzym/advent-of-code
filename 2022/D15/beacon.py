@@ -7,17 +7,18 @@ import json
 sys.argv.pop(0)  # get rid of first argument - script name
 
 if not sys.argv:
-    print("usage: FILE_NAME Y_LINE_TO_TEST")
+    print("usage: FILE_NAME Y_LINE_TO_TEST [COORD_MIN-COORD_MAX")
     sys.exit(1)
 
 input_file = sys.argv.pop(0)
 y_line_to_test = int(sys.argv.pop(0))
 
-part = "part2" # choose behaviour - part 1 or part 2 of the puzzle
+coord_range_str = "0-4000000"
 if sys.argv:
-    part = sys.argv.pop(0)
+    coord_range_str = sys.argv.pop(0)
 
-assert part in ["part1", "part2"], f"unexpected part={part}"
+coord_range = [int(x) for x in coord_range_str.split("-")]
+print("coord_range", coord_range)
 
 with open(input_file) as f:
     lines = f.readlines()
@@ -177,33 +178,85 @@ def add_to_intersection_set(inters_set, new_inters):
     return add_to_intersection_set(inters_set[1:], new_inters)
 
 
-y = y_line_to_test
-n_excluded = 0
-inters_set = []  # sortd list of disjoint intervals of interection of the line at y with
-                 # the 'exlusion zones' of all the sensors
-print(f"line: {y}")
-for loc, sensor in sensors.items():
-    ints = intersection_line_sensor(y, sensor)
-    dtl = abs(sensor.y - y)
-    if len(ints) > 0:  # if intersection not empty add it
-        inters_set = add_to_intersection_set(inters_set, ints)
-    # print(f".. ints = {ints}, new inters_set = {inters_set}")
-
-for ints in inters_set:
-    xs, xe = ints
-    n_excluded += xe - xs + 1  # number of points in the intersection interval
-    # now remove any beacons that (related to other sensors) that may on the same line
-    beacons_excluded = set()
+# part 1 puzzle - count points where a beacon cannot occur in one specific horizontal line
+def excluded_positions(y, exclude_known_beacons=True, exc_intervals=None):
+    n_excluded = 0
+    inters_set = []  # sortd list of disjoint intervals of interection of the line at y with
+                    # the 'exlusion zones' of all the sensors
+    # print(f"line: {y}")
     for loc, sensor in sensors.items():
-        bloc = sensor.beacon.loc()
-        if bloc in beacons_excluded:
-            continue
-        bx, by = bloc
-        if by == y and xs <= bx and bx <= xe:
-            n_excluded -= 1
-            beacons_excluded.add(bloc)
-            # print(f"excluded beacon at {bloc}")
+        ints = intersection_line_sensor(y, sensor)
+        dtl = abs(sensor.y - y)
+        if len(ints) > 0:  # if intersection not empty add it
+            inters_set = add_to_intersection_set(inters_set, ints)
+        # print(f".. ints = {ints}, new inters_set = {inters_set}")
 
-print(f"RESULT: n_excluded in line {y} = {n_excluded}")
-print(f"dbg: there are {xdim} total positions")
-print(f"dbg: places where beacon may occur: {xdim - n_excluded}")
+    for ints in inters_set:
+        xs, xe = ints
+        n_excluded += xe - xs + 1  # number of points in the intersection interval
+        # now remove any beacons that (related to other sensors) that may on the same line
+        if exclude_known_beacons:
+            # this is the part 1 behaviour
+            beacons_excluded = set()
+            for loc, sensor in sensors.items():
+                bloc = sensor.beacon.loc()
+                if bloc in beacons_excluded:
+                    continue
+                bx, by = bloc
+                if by == y and xs <= bx and bx <= xe:
+                    n_excluded -= 1
+                    beacons_excluded.add(bloc)
+                    # print(f"excluded beacon at {bloc}")
+    if exc_intervals is not None:
+        exc_intervals.append(inters_set)
+    return n_excluded
+
+n_excluded = excluded_positions(y_line_to_test)
+
+print(f"RESULT: part 1: n_excluded in line {y_line_to_test} = {n_excluded}")
+print(f"dbg: part 1: there are {xdim} total positions")
+print(f"dbg: part 1: places where beacon may occur: {xdim - n_excluded}")
+
+# part 2 - locate the only position that can contain a beacon
+x_min, x_max = coord_range
+y_min, y_max = coord_range
+xdim = x_max - x_min + 1
+ydim = y_max - y_min + 1
+inters_set = []
+y = y_min
+ctrl_print = 0
+for y in range(y_min, y_max + 1):
+    inters_set_c = []
+    n_excluded = excluded_positions(y, exclude_known_beacons=False, exc_intervals=inters_set_c)
+    inters_set = inters_set_c[0]  # value returned by the above function
+    # print(f"dbg: y {y} n_excluded {n_excluded}, xdim {xdim}, inters_set {inters_set_c[0]}")
+    rem_spots = xdim - n_excluded
+    if rem_spots == 1:
+        print("Found the spot:", inters_set, y)
+        break  # we can break here because the spec guarantees only one such line exists
+    if ctrl_print == 0:
+        print(f"dbg control print at y {y} (inters_set len: {len(inters_set)}, rem_spots: {rem_spots}")
+    ctrl_print = (ctrl_print + 1)%100000
+
+# if the spot is at the start or at the beginning of the line
+# we'll have only one interval in inters_set
+assert len(inters_set) > 0
+x_result = 0
+if len(inters_set) == 1:
+    xi_s, xi_e = inters_set[0]
+    if xi_s > x_min:
+        x_result = x_min
+    else:
+        assert xi_e < x_max
+        x_result = x_max
+else:
+    # otherwise we have exactly two intervals, and the
+    # sought position is just in the middle of them
+    assert len(inters_set) == 2
+    int1, int2 = inters_set
+    xe1 = int1[1]
+    xs2 = int2[0]
+    assert xs2 - xe1 == 2
+    x_result = xe1 + 1 # or, xs2 - 1
+tuning_frequency = x_result * 4000000 + y
+print(f"RESULT part 2: beacon is at {x_result}, {y}, tuning_frequency: {tuning_frequency}")
