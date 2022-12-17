@@ -75,7 +75,22 @@ for loc, sensor in sensors.items():
     x_max = max(x_max, sensor.x, sensor.beacon.x)
     y_max = max(y_max, sensor.y, sensor.beacon.y)
 
-print("x_min", x_min, "y_min", y_min, "x_max", x_max, "y_max", y_max)
+print(f"x range: [{x_min}, {x_max}], y range: [{y_min}, {y_max}]")
+
+# now we see if we need to extend de grid to include the full exclusion
+# zones for all sensors
+# this was not clearly stated in the spec and I only figured it out
+# by looking at the diagrams
+# without this change the result is too low, but with it it's correct
+# in the test case the result is correct in both cases, which is unfortunate
+for loc, sensor in sensors.items():
+    x_min = min(x_min, sensor.x - sensor.dist())
+    y_min = min(y_min, sensor.y - sensor.dist())
+    x_max = max(x_max, sensor.x + sensor.dist())
+    y_max = max(y_max, sensor.y + sensor.dist())
+
+print ("after including all exclusion zones")
+print(f"x range: [{x_min}, {x_max}], y range: [{y_min}, {y_max}]")
 
 xdim = x_max - x_min + 1
 ydim = y_max - y_min + 1
@@ -96,7 +111,7 @@ def print_grid() -> None:
                 dl += "."
         print(dl)
 
-print_grid()
+# print_grid()
 
 def intersection_line_sensor(y: int, sensor: Sensor):
     # return two points of intersection of the exlusion
@@ -124,11 +139,10 @@ def intersection_line_sensor(y: int, sensor: Sensor):
 
         ints = [x_s, x_e]
 
-    print(f"sensor loc: {loc},  d: {sensor.dist()}")
-    print(f"    dist_s_l: {dist_s_l}), remd: {remd}: {ints}")
+    # print(f"sensor loc: {loc},  d: {sensor.dist()}")
+    # print(f"    dist_s_l: {dist_s_l}), remd: {remd}: {ints}")
 
     return ints
-# adapted from D04 - camp cleanup
 
 def merge_intervals_if_possible(a, b):
     maxmin = max(a[0], b[0])
@@ -173,7 +187,7 @@ for loc, sensor in sensors.items():
     dtl = abs(sensor.y - y)
     if len(ints) > 0:  # if intersection not empty add it
         inters_set = add_to_intersection_set(inters_set, ints)
-    print(f".. ints = {ints}, new inters_set = {inters_set}")
+    # print(f".. ints = {ints}, new inters_set = {inters_set}")
 
 for ints in inters_set:
     xs, xe = ints
@@ -188,6 +202,8 @@ for ints in inters_set:
         if by == y and xs <= bx and bx <= xe:
             n_excluded -= 1
             beacons_excluded.add(bloc)
-            print(f"excluded beacon at {bloc}")
+            # print(f"excluded beacon at {bloc}")
 
 print(f"RESULT: n_excluded in line {y} = {n_excluded}")
+print(f"dbg: there are {xdim} total positions")
+print(f"dbg: places where beacon may occur: {xdim - n_excluded}")
