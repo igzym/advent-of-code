@@ -7,3 +7,4 @@ htmlcov/
 __pycache__/
 .swp
 .*.swp
+.DS_Store
