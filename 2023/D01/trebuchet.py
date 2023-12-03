@@ -7,10 +7,21 @@ if len(sys.argv) > 2:
     part = int(sys.argv[2])
 
 digits = [str(x) for x in range(10)]
-digit_words = ['zero', 'one', 'two', 'three', 'four',
-               'five', 'six', 'seven', 'eight', 'nine']
+digit_words = [
+    "zero",
+    "one",
+    "two",
+    "three",
+    "four",
+    "five",
+    "six",
+    "seven",
+    "eight",
+    "nine",
+]
 # numeric value of digit expressed as a word
 digit_word_val = {dw: d for dw, d in zip(digit_words, digits)}
+
 
 def find_first_digit(text: str):
     """Look for first digit either as digit, or as word
@@ -44,6 +55,7 @@ def find_first_digit(text: str):
             last_digit_val = digit_word_val[dw]
     return int(first_digit_val + last_digit_val)
 
+
 def main(input_file, part=1):
     with open(input_file) as f:
         lines = [line.rstrip() for line in f.readlines()]
@@ -55,13 +67,13 @@ def main(input_file, part=1):
             # find the first digit
             first_digit = None
             for x in range(len(line)):
-                if re.search('[0-9]', line[x]):
+                if re.search("[0-9]", line[x]):
                     first_digit = int(line[x])
                     break
             # find the last digit
             last_digit = None
             for x in reversed(range(len(line))):
-                if re.search('[0-9]', line[x]):
+                if re.search("[0-9]", line[x]):
                     last_digit = int(line[x])
                     break
             # print(line, first_digit, last_digit)
@@ -71,7 +83,8 @@ def main(input_file, part=1):
         elif part == 2:
             answer += find_first_digit(line)
 
-    print(f'D01 part{part} answer:', answer)
+    print(f"D01 part{part} answer:", answer)
+
 
 if __name__ == "__main__":
     main(input_file, part)
