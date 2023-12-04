@@ -1,6 +1,8 @@
 D01 Trebuchet
 =============
 
+https://adventofcode.com/2023/day/1
+
 Run as
 
     python trebuchet.py input.txt 1 # for part 1 answer
