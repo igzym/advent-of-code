@@ -4,14 +4,19 @@ import re
 DAY = "02"
 
 
+def split_re(text, sep):
+    """split using given separator ignoring any white space around it"""
+    return re.split(r"\s*" + sep + r"\s*", text)
+
+
 def parse_game_line(line):
     """parse input line that looks like this:
     Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green
     """
-    game_id_txt, game_txt = re.split(r"\s*:\s*", line)
-    _, game_id = re.split(r"\s+", game_id_txt)
+    game_id_txt, game_txt = split_re(line, ":")
+    _, game_id = split_re(game_id_txt, " ")
     game_id = int(game_id)
-    draws_txt_lst = re.split(r"\s*;\s*", game_txt)
+    draws_txt_lst = split_re(game_txt, ";")
 
     game = []
     for d in draws_txt_lst:
