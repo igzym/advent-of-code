@@ -24,3 +24,11 @@ Part 1
 - For example, if the elf showed you a draw with 13 red cubes, that game would
   not be possible
 - Add IDs of these games to get the answer
+
+Part 2
+------
+
+- for each game calculate the minimum number of cubes of each colour that must
+  have been present for the game to be possible
+- the power of a game is a product of these counts
+- the answer is the sum of the power of all games

@@ -40,6 +40,28 @@ def max_game_size(game, colour):
     return max_size
 
 
+COLOURS = ["red", "green", "blue"]
+
+
+def power_of_game(game):
+    """product of minimum number of cubes of each colour that must have been present
+    in the bag for a game to be possible
+    it's the product of max counts of cubes per colour for all draws
+
+    this is required for the part 2 of the problem
+    """
+    min_col = {c: 0 for c in COLOURS}
+    for d in game:
+        for c, n in d.items():
+            cur_min = min_col.get(c)
+            if n >= cur_min:
+                min_col[c] = n
+    power = 1
+    for _, n in min_col.items():
+        power *= n
+    return power
+
+
 def part_1_solution(lines):
     possible_game_ids = set()
     for line in lines:
@@ -56,6 +78,14 @@ def part_1_solution(lines):
     return sum(possible_game_ids)
 
 
+def part_2_solution(lines):
+    answer = 0
+    for line in lines:
+        game_id, game = parse_game_line(line)
+        answer += power_of_game(game)
+    return answer
+
+
 def main(input_file, part=1):
     with open(input_file) as f:
         lines = [line.rstrip() for line in f.readlines()]
@@ -63,7 +93,7 @@ def main(input_file, part=1):
     if part == 1:
         answer = part_1_solution(lines)
     else:
-        raise RuntimeError("part 2 not implemented")
+        answer = part_2_solution(lines)
 
     print(f"D{DAY} part{part} answer:", answer)
 
