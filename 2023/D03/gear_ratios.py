@@ -44,6 +44,24 @@ def is_next_to_symbol(schematic, i, j):
     return b
 
 
+def find_all_numbers(row):
+    # find all numbers and their locations
+    numbers = []
+    num_spans = []
+    ss = 0  # start of search
+    while True:
+        m = re.search(r"[0-9]+", row[ss:])
+        if not m:
+            break
+        b, e = m.span()
+        match = m.string[b:e]
+        numbers.append(match)
+        num_spans.append((ss + b, ss + b + e - 1))
+        ss += e  # start next search after the last match
+    # print(f"row {row}", i, numbers, num_spans)
+    return numbers, num_spans
+
+
 def part_1_solution(lines):
     schematic = read_schematic(lines)
 
@@ -52,23 +70,11 @@ def part_1_solution(lines):
     i = 0
     for row in schematic:
         # find all numbers and their locations
-        numbers = []
-        num_start_idx = []
-        ss = 0  # start of search
-        while True:
-            m = re.search(r"[0-9]+", row[ss:])
-            if not m:
-                break
-            b, e = m.span()
-            match = m.string[b:e]
-            numbers.append(match)
-            num_start_idx.append(ss + b)
-            ss += e  # start next search after the last match
-        # print(f"row {row}", i, numbers, num_start_idx)
+        numbers, num_spans = find_all_numbers(row)
         # now check the surroundings of each number
         for ni in range(len(numbers)):
             n = numbers[ni]
-            idx = num_start_idx[ni]
+            idx = num_spans[ni][0]  # start of number
             is_part_number = False
             for j in range(idx, idx + len(n)):
                 if is_next_to_symbol(schematic, i, j):
