@@ -9,7 +9,7 @@ def read_schematic(lines):
     schematic = []
     for line in lines:
         schematic.append(line)
-        print(line)
+        # print(line)
     return schematic
 
 
@@ -64,7 +64,7 @@ def part_1_solution(lines):
             numbers.append(match)
             num_start_idx.append(ss + b)
             ss += e  # start next search after the last match
-        print(f"row {row}", i, numbers, num_start_idx)
+        # print(f"row {row}", i, numbers, num_start_idx)
         # now check the surroundings of each number
         for ni in range(len(numbers)):
             n = numbers[ni]
@@ -75,7 +75,7 @@ def part_1_solution(lines):
                     is_part_number = True
                     break
             if is_part_number:
-                print("...", n, "is a part number")
+                # print("...", n, "is a part number")
                 answer += int(n)
         i += 1
     return answer
@@ -85,6 +85,10 @@ def part_2_solution(lines):
     for line in lines:
         pass
     raise RuntimeError(f"part {part} not implemented")
+
+
+def run_unit_tests():
+    unit_test("input.txt", 1, 556057)
 
 
 # ===== part below doesn't change =====
@@ -99,6 +103,18 @@ def main(input_file, part):
         answer = part_2_solution(lines)
 
     print(f"D{DAY} part {part} answer:", answer)
+
+
+def unit_test(input_file, part, expected):
+    print("unit test:", input_file, part, expected)
+    lines = util.read_lines(input_file)
+
+    if part == 1:
+        answer = part_1_solution(lines)
+    else:
+        answer = part_2_solution(lines)
+
+    assert answer == expected, f"expected: {expected} != actual: {answer}"
 
 
 if __name__ == "__main__":
