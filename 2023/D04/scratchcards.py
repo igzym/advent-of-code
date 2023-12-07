@@ -13,10 +13,16 @@ def read_cards(lines):
         cid = int(m.group(1))
         win = [int(n) for n in m.group(2).split()]
         have = [int(n) for n in m.group(3).split()]
-        cards.append(
-            [(cid, win, have)]
-        )  # each card 'id' can hold a list of cards (in part 2)
+        cards.append((cid, win, have))
     return cards
+
+
+def matches(cid, win, have):
+    nmatch = 0
+    for h in have:
+        if h in win:
+            nmatch += 1
+    return nmatch
 
 
 def part_1_solution(lines):
@@ -26,26 +32,74 @@ def part_1_solution(lines):
     # pprint(cards)
 
     points = 0
-    for clist in cards:
-        cid, win, have = clist[0]  # we have exactly one element here in part 2
-        nmatch = 0
-        for h in have:
-            if h in win:
-                nmatch += 1
+    for cid, win, have in cards:
+        nmatch = matches(cid, win, have)
         if nmatch > 0:
             points += 2 ** (nmatch - 1)
 
     return points
 
 
+class Card:
+    def __init__(self, cid, win, have):
+        self.cid = cid
+        self.win = win
+        self.have = have
+        self.val = matches(cid, win, have)
+        self.copies = 1
+
+    def value(self):
+        return self.val
+
+    def add_copies(self, n):
+        nc = self.copies + n
+        self.copies = nc
+
+    def get_copies(self):
+        return self.copies
+
+
+g_CARDS = None  # for debugging
+
+
+def dbg_card_status():
+    return ", ".join([f"{c.cid}: {c.get_copies():2}" for c in g_CARDS])
+
+
+def generate_copies(cards):
+    if len(cards) == 0:
+        return
+    tcard = cards[0]
+    m = tcard.value()
+    for card in cards[1 : m + 1]:
+        card.add_copies(tcard.get_copies())
+    # print(f"| after processing top card: {tcard.cid} v: {m}, copied {list(range(1+1,m+1+1))}")
+    # print(f"| {dbg_card_status()}")
+    generate_copies(cards[1:])
+
+
 def part_2_solution(lines):
-    pass
+    global g_CARDS
+    g_CARDS = []
+    cards = g_CARDS
+
+    raw_cards = read_cards(lines)
+    for cid, win, have in raw_cards:
+        cards.append(Card(cid, win, have))
+
+    # print(f"| initial state")
+    # print(f"| {dbg_card_status()}")
+    generate_copies(cards)
+
+    return sum([card.get_copies() for card in cards])
 
 
 def run_unit_tests():
     unit_test("test_input.txt", 1, 13)
     unit_test("input.txt", 1, 19855)
     unit_test("test_input.txt", 2, 30)
+    unit_test("input.txt", 2, 10378710)
+    unit_test("example_input.txt", 2, 7)
 
 
 # ===== part below doesn't change =====
