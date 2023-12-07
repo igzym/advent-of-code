@@ -16,6 +16,7 @@ def read_cards(lines):
         cards.append((cid, win, have))
     return cards
 
+
 def part_1_solution(lines):
     cards = read_cards(lines)
     # from pprint import pprint
@@ -29,7 +30,7 @@ def part_1_solution(lines):
             if h in win:
                 nmatch += 1
         if nmatch > 0:
-            points += 2**(nmatch-1)
+            points += 2 ** (nmatch - 1)
 
     return points
 
