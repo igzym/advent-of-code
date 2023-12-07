@@ -1,6 +1,7 @@
 import sys
 import re
 import util
+from collections import defaultdict
 
 DAY = "03"
 
@@ -74,10 +75,11 @@ def find_all_numbers(row):
 
 
 def find_part_numbers_and_gears(schematic):
-    i = 0
     numbers = []
     part_number_status: list[list[bool]] = []
     adjacent_gears = []
+
+    i = 0
     for row in schematic:
         # find all numbers and their locations
         r_numbers, num_spans = find_all_numbers(row)
@@ -98,15 +100,7 @@ def find_part_numbers_and_gears(schematic):
         part_number_status.append(r_part_number_status)
         adjacent_gears.append(r_adjacent_gears)
         i += 1
-    # from pprint import pprint
-    # print('schematic')
-    # pprint(schematic)
-    # print('numbers')
-    # pprint(numbers)
-    # print('part_number_status')
-    # pprint(part_number_status)
-    # print('adjacent_gears')
-    # pprint(adjacent_gears)
+
     return numbers, part_number_status, adjacent_gears
 
 
@@ -126,13 +120,32 @@ def part_1_solution(lines):
 
 
 def part_2_solution(lines):
-    for line in lines:
-        pass
-    raise RuntimeError(f"part {part} not implemented")
+    schematic = read_schematic(lines)
+
+    numbers, part_number_status, adjacent_gears = find_part_numbers_and_gears(schematic)
+
+    numbers_adj_to_gears = defaultdict(list)  # list of adjacent numbers of given gear
+    for i in range(len(numbers)):
+        for ni in range(len(numbers[i])):
+            n = numbers[i][ni]
+            ag = adjacent_gears[i][ni]
+            for g in ag:
+                numbers_adj_to_gears[g].append(n)
+    # from pprint import pprint
+    # pprint(schematic)
+    # pprint(numbers_adj_to_gears)
+
+    answer = 0
+    for g, nbrs in numbers_adj_to_gears.items():
+        if len(nbrs) == 2:
+            answer += int(nbrs[0]) * int(nbrs[1])
+    return answer
 
 
 def run_unit_tests():
     unit_test("input.txt", 1, 556057)
+    unit_test("test_input.txt", 2, 467835)
+    unit_test("input.txt", 2, 82824352)
 
 
 # ===== part below doesn't change =====
