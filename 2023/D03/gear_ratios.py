@@ -4,6 +4,8 @@ import util
 
 DAY = "03"
 
+GEAR_SYMBOL = "*"
+
 
 def read_schematic(lines):
     schematic = []
@@ -21,8 +23,7 @@ def char_at(schematic, i, j):
     return schematic[i][j]
 
 
-def is_symbol(schematic, i, j):
-    c = char_at(schematic, i, j)
+def is_symbol(c):
     if c is None or c == ".":
         return False
     if ord(c) >= ord("0") and ord(c) <= ord("9"):
@@ -31,16 +32,26 @@ def is_symbol(schematic, i, j):
     return True
 
 
-def is_next_to_symbol(schematic, i, j):
+def is_next_to_symbol(schematic, i: int, j: int, gears: set[tuple[int, int]] = None):
+    """return True if there are any adjacent symbols to cell (i, j)
+    if a set is provided in gears argument add coordinates of GEAR symbols found"""
+    surroundings = [
+        (i - 1, j - 1),
+        (i - 1, j),
+        (i - 1, j + 1),
+        (i, j - 1),
+        (i, j + 1),
+        (i + 1, j - 1),
+        (i + 1, j),
+        (i + 1, j + 1),
+    ]
+
     b = False
-    b = b or is_symbol(schematic, i - 1, j - 1)
-    b = b or is_symbol(schematic, i - 1, j)
-    b = b or is_symbol(schematic, i - 1, j + 1)
-    b = b or is_symbol(schematic, i, j - 1)
-    b = b or is_symbol(schematic, i, j + 1)
-    b = b or is_symbol(schematic, i + 1, j - 1)
-    b = b or is_symbol(schematic, i + 1, j)
-    b = b or is_symbol(schematic, i + 1, j + 1)
+    for ii, jj in surroundings:
+        c = char_at(schematic, ii, jj)
+        b = b or is_symbol(c)
+        if c == GEAR_SYMBOL and gears is not None:
+            gears.add((ii, jj))
     return b
 
 
@@ -62,28 +73,55 @@ def find_all_numbers(row):
     return numbers, num_spans
 
 
+def find_part_numbers_and_gears(schematic):
+    i = 0
+    numbers = []
+    part_number_status: list[list[bool]] = []
+    adjacent_gears = []
+    for row in schematic:
+        # find all numbers and their locations
+        r_numbers, num_spans = find_all_numbers(row)
+        r_part_number_status: list[bool] = []
+        r_adjacent_gears = []
+        # now check the surroundings of each number
+        for ni in range(len(r_numbers)):
+            n = r_numbers[ni]
+            idx = num_spans[ni][0]  # start of number
+            is_part_number = False
+            gears = set()
+            for j in range(idx, idx + len(n)):
+                if is_next_to_symbol(schematic, i, j, gears):
+                    is_part_number = True
+            r_part_number_status.append(is_part_number)
+            r_adjacent_gears.append(gears)
+        numbers.append(r_numbers)
+        part_number_status.append(r_part_number_status)
+        adjacent_gears.append(r_adjacent_gears)
+        i += 1
+    # from pprint import pprint
+    # print('schematic')
+    # pprint(schematic)
+    # print('numbers')
+    # pprint(numbers)
+    # print('part_number_status')
+    # pprint(part_number_status)
+    # print('adjacent_gears')
+    # pprint(adjacent_gears)
+    return numbers, part_number_status, adjacent_gears
+
+
 def part_1_solution(lines):
     schematic = read_schematic(lines)
 
+    numbers, part_number_status, adjacent_gears = find_part_numbers_and_gears(schematic)
+
     answer = 0
 
-    i = 0
-    for row in schematic:
-        # find all numbers and their locations
-        numbers, num_spans = find_all_numbers(row)
-        # now check the surroundings of each number
-        for ni in range(len(numbers)):
-            n = numbers[ni]
-            idx = num_spans[ni][0]  # start of number
-            is_part_number = False
-            for j in range(idx, idx + len(n)):
-                if is_next_to_symbol(schematic, i, j):
-                    is_part_number = True
-                    break
-            if is_part_number:
-                # print("...", n, "is a part number")
-                answer += int(n)
-        i += 1
+    for i in range(len(numbers)):
+        for ni in range(len(numbers[i])):
+            if part_number_status[i][ni]:
+                answer += int(numbers[i][ni])
+
     return answer
 
 
