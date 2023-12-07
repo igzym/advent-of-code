@@ -24,4 +24,7 @@ Part 1
 Part 2
 ------
 
-- tbd
+- A `*` symbol is potentially a gear
+- It is really a gear if it's adjacet to exactly two parts
+- A gear ratio is the product of these two part numbers
+- Find the sum of all gear ratios
