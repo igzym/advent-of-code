@@ -13,7 +13,9 @@ def read_cards(lines):
         cid = int(m.group(1))
         win = [int(n) for n in m.group(2).split()]
         have = [int(n) for n in m.group(3).split()]
-        cards.append((cid, win, have))
+        cards.append(
+            [(cid, win, have)]
+        )  # each card 'id' can hold a list of cards (in part 2)
     return cards
 
 
@@ -24,7 +26,8 @@ def part_1_solution(lines):
     # pprint(cards)
 
     points = 0
-    for cid, win, have in cards:
+    for clist in cards:
+        cid, win, have = clist[0]  # we have exactly one element here in part 2
         nmatch = 0
         for h in have:
             if h in win:
@@ -42,6 +45,7 @@ def part_2_solution(lines):
 def run_unit_tests():
     unit_test("test_input.txt", 1, 13)
     unit_test("input.txt", 1, 19855)
+    unit_test("test_input.txt", 2, 30)
 
 
 # ===== part below doesn't change =====

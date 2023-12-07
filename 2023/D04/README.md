@@ -30,4 +30,7 @@ Sum of the points of all cards
 Part 2
 ------
 
-- tbd
+The number of points is actually the number of copies of the following cards
+you create
+
+The answer is the total number of cards until all of the copying is processed
