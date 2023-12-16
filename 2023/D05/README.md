@@ -37,4 +37,6 @@ Find the smallest location value for all the seeds at the input.
 Part 2
 ------
 
-tbd
+The rules change: the input line giving the seeds is in fact a list of pairs of
+values: the start of a range and the length of the range of seed values. The
+answer required is the same, but now for all values in all ranges.

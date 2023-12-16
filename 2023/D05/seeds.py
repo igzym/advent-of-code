@@ -1,7 +1,8 @@
 import sys
 import re
-import util
 from collections import defaultdict
+
+import util
 
 DAY = "05"
 
@@ -32,6 +33,45 @@ class Range:
         else:
             return None  # no map possible via this range
 
+    def map_range(self, rs, re):
+        m_rs = self.map(rs)
+        m_re = self.map(re)
+
+        # print(f"| map_range {rs} {re} -> {m_rs}, {m_re}")
+
+        output_ranges = []
+
+        if m_rs is None and m_re is None:
+            # none of the input point range limits are inside the map
+            if re < self.src_start or rs > self.src_end:
+                # completely outside of the map's input range
+                # identity transformation
+                output_ranges.append((rs, re))
+            else:
+                # input range encompasses the map's input range
+                output_ranges.append(
+                    (rs, self.src_start - 1)
+                )  # part smaller than map input range
+                output_ranges.append((self.dst_start, self.dst_end))  # the map itself
+                output_ranges.append(
+                    (self.src_end + 1, re)
+                )  # the part larger than the map input range
+        elif m_re is None:
+            # only the start point is actually shifted by the map
+            # we split into two intervals - one shifted by map one identity
+            output_ranges.append((m_rs, self.dst_end))  # shifted by map
+            output_ranges.append((self.src_end + 1, re))  # identity
+        elif m_rs is None:
+            # only the end point is actually shifted by the map
+            # we split into two intervals - one identity and one shifted by map
+            output_ranges.append((rs, self.src_start - 1))  # identity
+            output_ranges.append((self.dst_start, m_re))  # shifted by map
+        else:
+            # input range wholy contained in mapping range
+            output_ranges.append((m_rs, m_re))
+
+        return output_ranges
+
 
 class Map:
     def __init__(self, src: str, dst: str):
@@ -40,7 +80,16 @@ class Map:
         self.ranges: list[Range] = []
 
     def add_range(self, rnge: Range):
-        self.ranges.append(rnge)
+        # keep ranges sorted in increasing range of source
+        inserted = False
+        for i in range(len(self.ranges)):
+            ernge = self.ranges[i]
+            if ernge.src_start >= rnge.src_start:
+                self.ranges.insert(i, rnge)
+                inserted = True
+                break
+        if not inserted:
+            self.ranges.append(rnge)
 
     def dump(self):
         print(f"| map: {self.src} -> {self.dst}")
@@ -125,13 +174,34 @@ def part_1_solution(lines):
 
 
 def part_2_solution(lines):
-    pass
-    return sum([card.get_copies() for card in cards])
+    seeds_raw, map_ranges = parse_input(lines)
+    # convert list of seeds to a list of seed ranges
+    seeds = []
+    for i in range(0, len(seeds_raw), 2):
+        b = seeds_raw[i]
+        n = seeds_raw[i + 1]
+        e = b + n - 1
+        seeds.append([b, e])
+
+    from pprint import pformat
+
+    print(f"| seed {seeds}")
+
+    # just for fun, map seed through the maps
+    ss, se = seeds[0]
+    src = "seed"
+    map_rnge = map_ranges[src]
+    dst = map_rnge.dst
+
+    x = ss
+    for ernge in map_rnge.ranges:
+        d = ernge.map(x)
 
 
 def run_unit_tests():
     unit_test("test_input.txt", 1, 35)
     unit_test("input.txt", 1, 424490994)
+    unit_test("test_input.txt", 2, 46)
 
 
 # ===== part below doesn't change =====
