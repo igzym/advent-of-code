@@ -1,6 +1,7 @@
 import os
 import util
-import re
+
+from collections import Counter
 
 script_name = os.path.basename(__file__)
 day_number = 1
@@ -15,6 +16,7 @@ lines = util.read_lines(args.filename)
 def main(lines, part):
     # create a list of pairs of integers
     values = [list(map(int, x.split())) for x in lines]
+    result = 0
 
     # convert into two columns, value on the left to the first columns
     # and the other value to the second column
@@ -28,7 +30,15 @@ def main(lines, part):
         # result is the sum of the differences of the two respective elements
         result = sum([abs(a - b) for (a, b) in zip(col1, col2)])
     else:
-        raise RuntimeError(f"solution for part {part} not implemented yet")
+        # part 2 - sum of left list elements multiplied by the number of times they
+        # appear in the right list
+
+        # count the appearances of values in the second list
+        count2 = Counter(col2)
+
+        # add value times count - use .get to succinctly handle values that do not
+        # appear in the second list
+        result = sum([x * count2.get(x, 0) for x in col1])
 
     return result
 

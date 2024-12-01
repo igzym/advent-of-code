@@ -18,3 +18,5 @@ Part 1
 Part 2
 ------
 
+- Add the values in the left list multiplied by the number of times they appear
+  in right list
