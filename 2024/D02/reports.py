@@ -24,7 +24,7 @@ def is_safe(levels):
     unsafe_level_change = False
     for i in range(0, len(levels) - 1):
         delta = levels[i + 1] - levels[i]
-        if abs(delta) < 0 or abs(delta) > 3:
+        if abs(delta) < 1 or abs(delta) > 3:
             unsafe_level_change = True
             break 
         delta_sign_sum += sign(delta)
