@@ -39,6 +39,18 @@ def is_safe(levels):
     return True
 
 
+def is_safe_after_dampening(levels):
+    if is_safe(levels):
+        return True
+    # try removing elements one by one and checking again
+    for i in range(len(levels)):
+        dampened_levels = list(levels)
+        dampened_levels.pop(i)
+        if is_safe(dampened_levels):
+            return True
+    return False
+
+
 def main(lines, part):
     # convert input to lists of integers
     values = [list(map(int, x.split())) for x in lines]
@@ -49,7 +61,10 @@ def main(lines, part):
             if is_safe(levels):
                 result += 1
     else:
-        raise RuntimeError("part 2 not yet implemented")
+        # part 2
+        for levels in values:
+            if is_safe_after_dampening(levels):
+                result += 1
 
     return result
 
