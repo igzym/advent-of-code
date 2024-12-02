@@ -1,11 +1,11 @@
-D01 Trebuchet Historian Hysteria
-=================================
+D01 Historian Hysteria
+======================
 
 https://adventofcode.com/2024/day/1
 
 Run as
 
-    python hysteria.py 1 input.txt
+    python hysteria.py -p1 input.txt
 
 
 Part 1
