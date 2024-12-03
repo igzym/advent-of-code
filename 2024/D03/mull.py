@@ -1,6 +1,7 @@
 import os
 import util
 import re
+import functools
 
 script_name = os.path.basename(__file__)
 day_number = 3
@@ -11,19 +12,36 @@ print(args.filename, args.part)
 
 lines = util.read_lines(args.filename)
 
-pat = re.compile(r"mul\((\d+),(\d+)\)")
+pat_mul = re.compile(r"mul\((\d+),(\d+)\)")
+pat_do = re.compile(r"do\(\)")
+pat_dont = re.compile(r"don't\(\)")
 
-def match_next(txt):
-    """return result of mul(A,B), A*B, and the pointer to the first
-    character after the matched mul. Returns None if no match found"""
-    #print("DEBUG, match_next on", txt)
+def match_pat(txt, pat):
+    """return positon after first matched pattern
+    or -1 if not found"""
+    pos_after = -1
     r = pat.search(txt)
+    if r:
+        pos_after = r.span()[1]
+    return pos_after
+
+
+match_do = functools.partial(match_pat, pat=pat_do)
+match_dont = functools.partial(match_pat, pat=pat_dont)
+
+
+def match_mul(txt):
+    """return result of mul(A,B), A*B, and the pointer to the first
+    character after the matched mul. Returns None, -1 if no match found"""
+    #print("DEBUG, match_next on", txt)
+    r = pat_mul.search(txt)
     if r:
         A = int(r.group(1))
         B = int(r.group(2))
         char_after = r.span()[1]
         return A*B, char_after
-    return None, None
+    return None, -1
+
 
 def main(lines, part):
     # convert input to lists of integers
@@ -33,15 +51,52 @@ def main(lines, part):
         for line in lines:
             txt = line
             while True:
-                r, char_after = match_next(txt)
+                r, char_after = match_mul(txt)
                 if r is None:
                     break
                 result += r
                 txt = txt[char_after:]
     else:
         # part 2
-        pass
+        enabled = True
+        for line in lines:
+            txt = line
+            while True:
+                posvec = []
+                pos = match_do(txt)
+                if pos >= 0:
+                    posvec.append((pos, "do"))
+                pos = match_dont(txt)
+                if pos >= 0:
+                    posvec.append((pos, "dont"))
+                r, pos = match_mul(txt)
+                if pos >= 0:
+                    posvec.append((pos, "mul"))
 
+                if len(posvec) == 0:
+                    break
+
+                #print("DEBUG txt", txt)
+                #print("DEBUG posvec", posvec)
+                #print("DEBUG sorted(posvec)", sorted(posvec))
+
+                # take the first matching token
+                pos, kind = sorted(posvec, key=lambda e: e[0])[0]
+                #print("DEBUG", pos, kind)
+                last_pos = pos
+                if kind == "dont":
+                    enabled = False
+                    #print("DEBUG Disable")
+                elif kind == "do":
+                    enabled = True
+                    #print("DEBUG Enable")
+                else:  # mul
+                    if enabled:
+                        #print("DEBUG adding product", r)
+                        result += r
+
+                txt = txt[last_pos:]
+ 
     return result
 
 

@@ -9,9 +9,12 @@ Run as
 
 ## Skill required
 
-Regular expressions
+part 1 Regular expressions
+part 2 State management while iterating through instructions
+
+
 
 ## Answers
 
 - part 1: 166357705
-- part 2: 
+- part 2: 88811886
