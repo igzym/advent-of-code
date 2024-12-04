@@ -2,6 +2,15 @@ import re
 import argparse
 
 
+DEBUG = False
+
+
+def debug(*args, **kwargs):
+    global DEBUG
+    if DEBUG:
+        print("DEBUG", *args, **kwargs)
+
+
 def read_lines(input_file):
     """read lines from a file and return as a list, stripping
     trailing newlines"""
@@ -16,14 +25,17 @@ def split_re(text, sep):
 
 
 def parse_args(script_name, day_number):
+    global DEBUG
     parser = argparse.ArgumentParser(
                         prog=f"python {script_name}",
                         description=f"Solution to advent of code D{day_number:02} problem",
                         )
 
     parser.add_argument('filename')
+    parser.add_argument('-d', '--debug', help='turn on debugging', action='store_true')
     requiredNamed = parser.add_argument_group('required named arguments')
     requiredNamed.add_argument('-p', '--part', help='part number', type=int, choices=[1, 2], required=True)
 
     args = parser.parse_args()
+    DEBUG = args.debug
     return args
