@@ -46,7 +46,6 @@ def match_mul(txt):
 
 
 def main(lines, part):
-    # convert input to lists of integers
     result = 0
 
     if part == 1:
