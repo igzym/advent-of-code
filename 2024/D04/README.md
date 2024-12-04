@@ -1,4 +1,4 @@
-D03 Ceres Search
+D04 Ceres Search
 ======================
 
 https://adventofcode.com/2024/day/4
@@ -9,8 +9,8 @@ Run as
 
 ## Skill required
 
-part 1 
-part 2 
+part 1 1D pattern search along horizontal, vertical and diagonal, including matrix transformations
+part 2 search for a 2D pattern in a matrix by iterating the top-left corner
 
 
 ## Answers
