@@ -3,6 +3,8 @@ import util
 import re
 import functools
 
+from util import debug
+
 script_name = os.path.basename(__file__)
 day_number = 3
 
@@ -76,9 +78,9 @@ def main(lines, part):
                 if len(posvec) == 0:
                     break
 
-                #print("DEBUG txt", txt)
-                #print("DEBUG posvec", posvec)
-                #print("DEBUG sorted(posvec)", sorted(posvec))
+                debug("txt", txt)
+                debug("posvec", posvec)
+                debug("sorted(posvec)", sorted(posvec))
 
                 # take the first matching token
                 pos, kind = sorted(posvec, key=lambda e: e[0])[0]
@@ -86,13 +88,13 @@ def main(lines, part):
                 last_pos = pos
                 if kind == "dont":
                     enabled = False
-                    #print("DEBUG Disable")
+                    debug("Disable")
                 elif kind == "do":
                     enabled = True
-                    #print("DEBUG Enable")
+                    debug("Enable")
                 else:  # mul
                     if enabled:
-                        #print("DEBUG adding product", r)
+                        debug("adding product", r)
                         result += r
 
                 txt = txt[last_pos:]
