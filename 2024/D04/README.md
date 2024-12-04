@@ -15,5 +15,5 @@ part 2
 
 ## Answers
 
-- part 1: 
+- part 1: 2644
 - part 2: 
