@@ -36,7 +36,12 @@ def print_matrix(label, lines):
     debug('=======')
     for l in lines:
         debug(l)
-    debug('=======')
+
+
+def to_matrix(lines):
+    matrix = [[c for c in line] for line in lines]
+    return matrix
+
 
 
 def transpose_matrix(lines):
@@ -53,7 +58,7 @@ def transpose_matrix(lines):
     nrows = len(lines)
     ncols = len(lines[0])
 
-    matrix = [[c for c in line] for line in lines]
+    matrix = to_matrix(lines)
 
     tr_lines = []
     for c in range(ncols):
@@ -108,6 +113,34 @@ def count(lines):
     debug(cnt)
     return cnt
 
+
+def match_xmas_pattern_in_matrix(matrix, r0, c0):
+    """does upper left corner of matrix match
+    M.M
+    .A.
+    S.S
+    where M and S can be swapped along diagonal
+    """
+
+    d1 = False
+    d2 = False
+
+    def mtx(r, c):
+        return matrix[r0 + r][c0 + c]
+
+    if mtx(1, 1) == 'A':
+        if mtx(0, 0) == 'M' and mtx(2, 2) == 'S':
+            d1 = True
+        elif mtx(0, 0) == 'S' and mtx(2, 2) == 'M':
+            d1 = True
+        if mtx(0, 2) == 'M' and mtx(2, 0) == 'S':
+            d2 = True
+        elif mtx(0, 2) == 'S' and mtx(2, 0) == 'M':
+            d2 = True
+
+    return d1 and d2
+
+
 def main(lines, part):
     result = 0
 
@@ -127,7 +160,15 @@ def main(lines, part):
         result += count(sk_lines_r)
     else:
         # part 2
-        pass
+        matrix = to_matrix(lines)
+        if len(matrix) == 0:
+            raise RuntimeError("empty input")
+        nrows = len(matrix)
+        ncols = len(matrix[0])
+        for i in range(nrows - 2):
+            for j in range(ncols - 2):
+                if match_xmas_pattern_in_matrix(matrix, i, j):
+                    result += 1
 
     return result
 
