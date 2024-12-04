@@ -120,19 +120,27 @@ def match_xmas_pattern_in_matrix(matrix, r0, c0):
     .A.
     S.S
     where M and S can be swapped along diagonal
+
+    matrix is actually a list of lists, so r0 and c0 are the row
+    and column shift with respect to the original matrix
     """
 
     d1 = False
     d2 = False
 
     def mtx(r, c):
+        """implement the row and column shift so 0, 0 references
+        r0, c0 in the original matrix"""
         return matrix[r0 + r][c0 + c]
 
-    if mtx(1, 1) == 'A':
+    if mtx(1, 1) == 'A':  # we must have 'A' in the middle
+        # look for M (A) S or S (A) M in the top-left to bottom-right diagonal
         if mtx(0, 0) == 'M' and mtx(2, 2) == 'S':
             d1 = True
         elif mtx(0, 0) == 'S' and mtx(2, 2) == 'M':
             d1 = True
+
+        # look for M (A) S or S (A) M in the top-right to bottom-left diagonal
         if mtx(0, 2) == 'M' and mtx(2, 0) == 'S':
             d2 = True
         elif mtx(0, 2) == 'S' and mtx(2, 0) == 'M':
@@ -165,6 +173,8 @@ def main(lines, part):
             raise RuntimeError("empty input")
         nrows = len(matrix)
         ncols = len(matrix[0])
+        # iterate the top-left corner of the matrix along rows and columns to
+        # cover the entire matrix, and add to count for each time it matches the patter
         for i in range(nrows - 2):
             for j in range(ncols - 2):
                 if match_xmas_pattern_in_matrix(matrix, i, j):
