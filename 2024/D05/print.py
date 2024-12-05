@@ -35,8 +35,17 @@ def main(lines, part):
     debug("max_page", max_page)
 
     # create a matrix representing "before" relation between pages
-    # add one to work-around 0 based indexing without making the code
-    # to complicated
+    #
+    # add an extra row and column which will be ignored, this will allow
+    # simpler 'notation' using 1-based insted of the usual 0-based indexing
+    #
+    # for larger problem sizes made a lot more efficient by allocating only
+    # the range of [min_page, max_page] elements with appropriate shift in usage
+    #
+    # using a sparse instead of a dense matrix would most likely be justified
+    #
+    # this matrix will then be used to implement a comparison function
+    # for sorting the elements in the 'updates' list
     before_mtx = np.zeros(shape=(max_page+1, max_page+1), dtype=int)
     for i, j in ord_rules:
         before_mtx[i, j] = -1  # i is before j, so i is "less" then j
@@ -45,18 +54,20 @@ def main(lines, part):
 
     if part == 1:
         for up in updates:
-            # order the list based on be 'before' relation
+            # order the list based on 'before' relation
             ups = sorted(up, key=functools.cmp_to_key(lambda i, j: before_mtx[i, j]))
             if ups == up:
-                mid = up[len(up) // 2]  # get the middle element of lists that are in the correct order
+                # middle element of lists that are in the correct order
+                mid = up[len(up) // 2]
                 result += mid
     else:
         # part 2
         for up in updates:
-            # order the list based on be 'before' relation
+            # order the list based on 'before' relation
             ups = sorted(up, key=functools.cmp_to_key(lambda i, j: before_mtx[i, j]))
             if ups != up:
-                mid = ups[len(up) // 2]  # get the middle element of the SORTED list that are NOT in the correct order
+                # middle element of lists that are NOT in the correct order, AFTER sorting
+                mid = ups[len(up) // 2]
                 result += mid
 
     return result
