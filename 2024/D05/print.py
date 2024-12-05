@@ -52,7 +52,12 @@ def main(lines, part):
                 result += mid
     else:
         # part 2
-        pass
+        for up in updates:
+            # order the list based on be 'before' relation
+            ups = sorted(up, key=functools.cmp_to_key(lambda i, j: before_mtx[i, j]))
+            if ups != up:
+                mid = ups[len(up) // 2]  # get the middle element of the SORTED list that are NOT in the correct order
+                result += mid
 
     return result
 

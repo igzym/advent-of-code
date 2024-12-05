@@ -10,10 +10,10 @@ Run as
 ## Skill required
 
 part 1 parsing and 'exotic' list sorting
-part 2 
+part 2 direct application of tools developed in part 1
 
 
 ## Answers
 
 - part 1: 4185
-- part 2: 
+- part 2: 4480
