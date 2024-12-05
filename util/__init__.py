@@ -11,6 +11,20 @@ def debug(*args, **kwargs):
         print("DEBUG", *args, **kwargs)
 
 
+def split_lines_on_blank_line(lines):
+    line_set = []
+    cur_lines = []
+    for lne in lines:
+        if lne == "":
+            line_set.append(cur_lines)
+            cur_lines = []
+        else:
+            cur_lines.append(lne)
+    if cur_lines:
+        line_set.append(cur_lines)
+    return line_set
+
+
 def read_lines(input_file):
     """read lines from a file and return as a list, stripping
     trailing newlines"""
