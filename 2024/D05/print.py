@@ -52,10 +52,18 @@ def main(lines, part):
         before_mtx[j, i] = 1  # j is after i, so j is "greater" then i
 
 
+    # surrogate key implementation for sorting
+    class K(object):
+        def __init__(self, page):
+            self.page = page
+        def __lt__(self, other):
+            return before_mtx[self.page, other.page] < 0
+
+
     if part == 1:
         for up in updates:
             # order the list based on 'before' relation
-            ups = sorted(up, key=functools.cmp_to_key(lambda i, j: before_mtx[i, j]))
+            ups = sorted(up, key=K)
             if ups == up:
                 # middle element of lists that are in the correct order
                 mid = up[len(up) // 2]
@@ -64,7 +72,7 @@ def main(lines, part):
         # part 2
         for up in updates:
             # order the list based on 'before' relation
-            ups = sorted(up, key=functools.cmp_to_key(lambda i, j: before_mtx[i, j]))
+            ups = sorted(up, key=K)
             if ups != up:
                 # middle element of lists that are NOT in the correct order, AFTER sorting
                 mid = ups[len(up) // 2]
