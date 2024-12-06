@@ -38,6 +38,12 @@ def split_re(text, sep):
     return re.split(r"\s*" + sep + r"\s*", text)
 
 
+def to_matrix(lines):
+    """Convert list of strings to a list of list of characters"""
+    matrix = [[c for c in line] for line in lines]
+    return matrix
+
+
 def parse_args(script_name, day_number):
     global DEBUG
     parser = argparse.ArgumentParser(
