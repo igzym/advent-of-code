@@ -10,7 +10,7 @@ Run as
 ## Skill required
 
 part 1 path tracing on a map
-part 2 
+part 2 path tracing and identifying loop possibilities
 
 
 ## Answers
