@@ -57,9 +57,10 @@ def next_pos(state):
     return i, j
 
 
-def legal_pos(mapm, i, j):
+def is_pos_unobstructed(mapm, i, j):
     # does given position contain an obstacle?
     return mapm[i, j] == 0
+
 
 def turn(mapm, state):
     # change direction by turning to right
@@ -68,18 +69,16 @@ def turn(mapm, state):
     d = guard_dir_cycle[(gsi + 1) % len(guard_dir_cycle)]
     state[2] = d
 
+
 def about_to_exit(mapm, state):
     # am I on the edge of the map and facing the direction
     # such that next move would leave the map?
-    i, j, d = state
     m, n = mapm.shape
-    if d == UP and i == 0:
+    i, j = next_pos(state)
+    # see if off map
+    if i < 0 or i >= m:
         return True
-    if d == DOWN and i == m - 1:
-        return True
-    if d == LEFT and j == 0:
-        return True
-    if d == RIGHT and j == n - 1:
+    if j < 0 or j >= n:
         return True
     return False
 
@@ -87,9 +86,9 @@ def about_to_exit(mapm, state):
 def move(mapm, state):
     # change the state, either change the position if possibe
     # or turn
-    ni, nj = next_pos(state)
-    if legal_pos(mapm, ni, nj):
-        state[0], state[1] = ni, nj
+    i, j = next_pos(state)
+    if is_pos_unobstructed(mapm, i, j):
+        state[0], state[1] = i, j
     else:
         turn(mapm, state)
 
