@@ -2,12 +2,13 @@ import os
 import util
 import numpy as np
 from collections import defaultdict
+import copy
 from typing import Tuple, List, Set, Optional  # need to upgrade python to 3.12 for modern typing syntax
 
 from util import debug
 
 script_name = os.path.basename(__file__)
-day_number = 5
+day_number = 6
 
 args = util.parse_args(script_name, day_number)
 
@@ -25,6 +26,8 @@ class Guard:
     LEFT: str = "<"
     RIGHT: str = ">"
 
+    mapm = None
+
     # directions in the order of turning to the right
     dir_cycle = [UP, RIGHT, DOWN, LEFT]
 
@@ -38,7 +41,7 @@ class Guard:
         n = len(lines_mtx[0])
 
         # the map of the area, indicating empty spaces and obstacles
-        self.mapm = np.zeros(shape=(m, n), dtype=int)
+        Guard.mapm = np.zeros(shape=(m, n), dtype=int)
 
         self.position: Position = None  # current positon of the guard
         self.dir: str = None  # current direction of the guard
@@ -109,6 +112,10 @@ class Guard:
         # such that next move would leave the map?
         i, j = self.next_pos()
         return self.is_off_map(i, j)
+    
+    def is_facing_obstacle(self) -> bool:
+        np = self.next_pos()
+        return not self.is_pos_unobstructed(np)
 
 
     def move(self) -> None:
@@ -119,12 +126,12 @@ class Guard:
             self.position = position
             self.visited.add(self.position)
             self.visited_in_dir[self.position].add(self.dir)
-            debug("move to", self.position, "in dir", self.dir)
+            #debug("move to", self.position, "in dir", self.dir)
         else:
             self.turn()
             self.visited_in_dir[self.position].add(self.dir)
             self.print_state()
-            debug("turn in", self.position, "in dir", self.dir)
+            #debug("turn in", self.position, "in dir", self.dir)
 
 
     def count_of_visited_positions(self) -> int:
@@ -136,6 +143,7 @@ class Guard:
 
 
     def print_state(self, obs_pos: Optional[Position]=None) -> None:
+        return
         m, n = self.mapm.shape
         pmtx = []
         for i in range(m):
@@ -178,7 +186,7 @@ def main(lines, part):
 
     if part == 1:
         while True:
-            debug(result, "in state", guard)
+            #debug(result, "in state", guard)
             i, j = guard.position
             if guard.about_to_exit():
                 # next move, the guard will exit, stop iterating
@@ -189,40 +197,49 @@ def main(lines, part):
             guard.move()
     else:
         # part 2
+        # look for potential obstacles to add to introduce cycles
         while True:
-            debug(result, "in state", guard)
+            #debug(result, "in state", guard)
 
             if guard.about_to_exit():
-                debug(result, "about to exit", guard)
+                debug(result, "about to exit the grid", guard)
                 break
 
-            # have I been on this location in the past
-            # but going in the direction I would go if I turned
-            # right?
-            past_dirs = guard.visited_in_dir[guard.position]
-            if past_dirs:
-                debug("seen", guard.position, "in directions", past_dirs)
+            if guard.is_facing_obstacle():
+                #debug(result, "already facing an obstacle", guard)
+                guard.move()
+                continue
 
-            nd = guard.new_direction()
-            # was I in this state but in "next turn" direction?
-            if nd in past_dirs:
-                debug(f"... was in direction after turn, '{nd}', in this position alrady")
-                # see if we generate a cycle by placing an obstcle just in front of the
-                # current guard position
-                obstacle_position = guard.next_pos()
-                if obstacle_position  == guard.initial_position:
-                    continue  # we cannot place an obstacle on guards initial location
-                if not guard.is_pos_unobstructed(obstacle_position):
-                    continue  # there is already an obstacle
-                if obstacle_position in guard.additional_obstacles:
-                    continue  # we have already considered and addition of an obstacle here
-                # looks like we identified a potential new obstacle
-                guard.additional_obstacles.add(obstacle_position)
-                result += 1
-                debug(result, "potential new obstacle", obstacle_position, guard.additional_obstacles)
-                guard.print_state(obstacle_position)
-                ## XXX next idea: was in direction after turn on the same line...
-            # generate next move
+            # consider placing an obstacle in the next positon the guard will take 
+            obstacle_position = guard.next_pos()
+
+            if obstacle_position in guard.additional_obstacles:
+                guard.move()
+                continue  # we have already identified this as a cycle-inducing obstacle position
+
+            if obstacle_position == guard.initial_position:
+                guard.move()
+                continue  # we cannot place an obstacle on guards initial location
+
+            # imagine there was an obstacle in front and the gard turned and continued in
+            # that direction. Would he cross a previouslly visited position going in that direction?
+            # if so, placing an obstcle would induce a cycle
+            sim_guard = copy.deepcopy(guard)
+            sim_guard.turn()
+            while True:
+                if sim_guard.about_to_exit() or sim_guard.is_facing_obstacle():
+                    break
+                past_guard_dirs_at_sim_position = guard.visited_in_dir.get(sim_guard.position)
+                if past_guard_dirs_at_sim_position is not None:
+                    if sim_guard.dir in past_guard_dirs_at_sim_position:
+                        # guard has already visited the present position and in the
+                        # same direction, so the obstacle would create a cycle
+                        guard.additional_obstacles.add(obstacle_position)
+                        result += 1
+                        debug(result, f"({len(guard.visited)}) cycle-inducing obstacle at", obstacle_position)
+                        guard.print_state(obstacle_position)
+                        break
+                sim_guard.move()
             guard.move()
 
     return result
