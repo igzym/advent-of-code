@@ -9,11 +9,11 @@ Run as
 
 ## Skill required
 
-part 1 
+part 1 Parsing, combinatorics, code interpretation
 part 2 
 
 
 ## Answers
 
-- part 1: 
+- part 1: 2664460013123
 - part 2: 
