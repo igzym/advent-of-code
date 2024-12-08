@@ -16,15 +16,26 @@ print(args.filename, args.part)
 
 lines = util.read_lines(args.filename)
 
+
 def op_subsets(n):
+    # using binary numbers to generate a set of possible variations of
+    # two values (+ or *) over n positions
+    # for example, if n = 3 then we generate binary numbers
+    # 000, 001, 010, 011, 100, 101, 110, 111
+    # which correspond to (if 0 -> '+' and 1 -> '*')
+    # a + b + c + d, a + b + c * d, ..., a * b * c * d
     subs_bin = [format(i, f'0{n}b') for i in range(pow(2, n))]
     return [[o for o in s.replace('0', '+').replace('1', '*')] for s in subs_bin]
-
 
 
 def main(lines, part):
     result = 0
 
+    # do the parsing via list comprexension
+    # not the easiest to read but quick to write
+    # we first split on ': ' to separate the expected result and the list of values on which to compute
+    # then we split the values to compute in a list
+    # we convert all to int
     inp = [(int(ex), list(map(int, elt.split(' ')))) for (ex, elt) in [lne.split(': ') for lne in lines]]
 
     if part == 1:
@@ -39,16 +50,19 @@ def main(lines, part):
                     expr[i*2+1] = ops[i]
                 expr[-1] = args[-1]
                 debug("...", expr)
+                # calculate the expressions for each of the combination of the
+                # operators and check agains the expected (test) value
+                # for each one that matches add to the overall result
                 r = expr[0]
-                f = None
+                operation = None
                 for e in expr[1:]:
-                    debug("... ...", repr(e), f)
+                    debug("... ...", repr(e), operation)
                     if e == '+':
-                        f = operator.add
+                        operation = operator.add
                     elif e == '*':
-                        f = operator.mul
+                        operation = operator.mul
                     else:
-                        r = f(r, e)
+                        r = operation(r, e)
                 if r == expval:
                     result += r
                     break
