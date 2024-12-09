@@ -9,11 +9,11 @@ Run as
 
 ## Skill required
 
-- part 1: 
+- part 1: Linear transformations in a bounded 2D space
 - part 2: 
 
 
 ## Answers
 
-- part 1: 
+- part 1: 367
 - part 2: 
