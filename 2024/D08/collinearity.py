@@ -34,10 +34,12 @@ def pairs(seq: List[Position]) -> List[Pair]:
     return r
 
 
-def antinodes(pair: Pair, mtx) -> List[Position]:
+def antinodes(pair: Pair, mtx, k) -> List[Position]:
     """for given pair of positions, return the list of antinodes
-    there can be at most two antinodes, but those that fall outside of
-    the grid are eliminated"""
+    there fall on the line determined by the pair of positons
+    at distance exactly k times the segment determined by the pair
+    k can be 0
+    retain only values that are on the grid"""
     m, n = mtx.shape
 
     p1, p2 = pair
@@ -45,8 +47,9 @@ def antinodes(pair: Pair, mtx) -> List[Position]:
     x1, y1 = p1
     x2, y2 = p2
 
-    a1: Position = x2 + x2 - x1, y2 + y2 - y1  # add delta p2 - p1
-    a2: Position = x1 - x2 + x1, y1 - y2 + y1  # subtract delta p2 - p1
+
+    a1: Position = x2 + k*(x2 - x1), y2 + k*(y2 - y1)  # add k times delta p2 - p1
+    a2: Position = x1 - k*(x2 - x1), y1 - k*(y2 - y1)  # subtract k times delta p2 - p1
 
     def in_grid(p: Position) -> bool:
         x, y = p
@@ -116,19 +119,31 @@ def main(lines, part):
     print_map("initial", lines_mtx)
     for f, posp in pospd.items():
         for p in posp:
-            an = antinodes(p, mtx)
+            if part == 1:
+                # just look for a single pair of antidotes
+                # at a fixed distance
+                an = antinodes(p, mtx, 1)
+            else:
+                # look for antinodes at an increasing distance
+                # starting from 0 which means the position of the generating pair
+                # of antennas, until neither of the generated antinodes falls on
+                # the grid
+                k = 0
+                an = []
+                while True:
+                    an0 = antinodes(p, mtx, k)  # antinodes at distance k
+                    debug("colinearity for", p, "with k", k, "gives", an0)
+                    if not an0:  # non of them are on the grid we can stop trying to extend the distance
+                        break
+                    an.extend(an0)
+                    k += 1
             print_map(f"with antinodes for {f} at {p}: {an}", lines_mtx, an)
             for a in an:
                 unique_an.add(a)
     debug("result", len(unique_an))
     print_map("final antinodes", lines_mtx, list(unique_an))
 
-    if part == 1:
-        result = len(unique_an)
-    else:
-        # part 2
-        pass
-
+    result = len(unique_an)
     return result
 
 
